@@ -1,2 +1,10 @@
-# apsc101-watertreatment-proto
-water pretreatment plant project for APSC 101 Engineering Deign &amp; Practice @ Queen's U. 
+# APSC 101 - Water Pre-Treatment Plant Prototype
+
+## Software 
+
+to run the web-based dashboard:
+```bash
+npm run dev
+```
+
+-> the main firmware can be ran via the Arduino IDE. 
