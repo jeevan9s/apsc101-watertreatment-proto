@@ -4,6 +4,7 @@
 
 to run the web-based dashboard:
 ```bash
+cd web-app
 npm run dev
 ```
 
