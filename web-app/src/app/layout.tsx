@@ -1,19 +1,10 @@
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { inter, dmSans } from '../../../fonts';
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Water Treatment Plant Online Monitoring Interface" ,
+  title: "Dashboard" ,
   description: "APSC 101 Project (Team 163)",
 };
 
@@ -25,11 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Treatment Plant Dashboard</title>
+        <title>Dashboard</title>
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${inter.className} ${dmSans.className} antialiased`}>
         {children}
       </body>
     </html>
