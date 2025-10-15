@@ -1,12 +1,9 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
 
-export function TrendGraph() {
-
-    // replace with actual incoming stream over time
-    const data: any[] = [];
+export function TrendGraph({ data }: { data: { name: string; value: number }[] }) {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
-  <span className="text-2xl font-bold text-slate-400">Trend Graph</span>
+      <span className="text-2xl font-bold text-slate-400">Trend Graph</span>
       <div className="w-full h-40 flex items-center justify-center">
         {data.length === 0 ? (
           <span className="text-white/40">No data available</span>

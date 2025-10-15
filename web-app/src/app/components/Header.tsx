@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { dmSans } from "../../../../fonts";
+import { dmSans } from "../../../fonts";
 
 export function Header() {
   return (
