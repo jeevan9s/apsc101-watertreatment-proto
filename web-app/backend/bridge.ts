@@ -72,7 +72,7 @@ app.get("/export-csv", (req: Request, res: Response) => {
   if (fs.existsSync(logfile)) {
     res.download(logfile, "WPTPDI_data_log.csv");
   } else {
-    res.status(404).send("Log file not found");
+    res.status(404).send("log file not found");
   }
 });
 

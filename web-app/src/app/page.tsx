@@ -9,7 +9,7 @@ import { poppins } from "../../fonts";
 import { TurbidityGauge } from "./components/TurbidityGauge";
 import { TrendGraph } from "./components/TrendGraph";
 import { EfficiencyChart } from "./components/EfficiencyChart";
-import { useSystemData, getSystemStatus, getTurbidityIn, getTurbidityOut, getReductionEfficiency } from "../lib/handlers";
+import { useSystemData, getSystemStatus, getTurbidityIn, getTurbidityOut, getReductionEfficiency } from "../lib/frontendHandlers";
 
 
 export default function Home() {
