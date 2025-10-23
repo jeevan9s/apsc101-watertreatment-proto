@@ -10,7 +10,7 @@
 unsigned long lastUpdate = 0;
 const unsigned long INTERVAL = 1000;
 
-int pumpState = 0; 
+int pumpState = 1; 
 
 void setup() 
 {
@@ -32,13 +32,17 @@ void sendStaticData()
 {
     float in = 2.67;
     float out = 1.41;
-    Serial.print("{\"turbidity\": {\"in\": ");
+    String systemStatus = getSystemStatus();
+    
+    Serial.print("{\"turbidity_in\": ");
     Serial.print(in, 2);
-    Serial.print(", \"out\": ");
+    Serial.print(", \"turbidity_out\": ");
     Serial.print(out, 2);
-    Serial.print("}, \"system\": {\"status\": \"operating\", \"pump\": ");
+    Serial.print(", \"status\": \"");
+    Serial.print(systemStatus);
+    Serial.print("\", \"pump\": ");
     Serial.print(pumpState);
-    Serial.println("}}");
+    Serial.println("}");
 }
 
 float readSensor()
@@ -54,24 +58,44 @@ float calculateTurbidty()
     //TODO - calibr. curve speficic (check T1 excel sheets/report)
 }
 
-bool fetchPumpState() 
+// replace with actual logic 
+String getSystemStatus() 
 {
-    //TODO - simple helper to check if pump is on/off -> should return pump name running and its status 
-           // could use a pin -> pumpname dictionary
-           // return boolean true or false (pumping, inactive)
+    float turbidityIn = readSensor();
+    int currentPumpState = pumpState;
+    
+    pumpState = currentPumpState;
+    
+    if (turbidityIn < 0.1) {
+        return "offline";  
+    }
+    else if (turbidityIn > 5.0) {
+        return "alert";    
+    }
+    else if (currentPumpState == 1) {
+        return "treating"; 
+    }
+    else if (turbidityIn <= 2.0) {
+        return "treated";   
+    }
+    else {
+        return "monitoring"; 
+    }
 }
-
-// a "get system status" helper function could be useful
 
 void sendLiveData() 
 {
     float in = readSensor();
     float out = 0.20;
-    Serial .print("{\"turbidity\": {\"in\": ");
+    String systemStatus = getSystemStatus();
+    
+    Serial.print("{\"turbidity_in\": ");
     Serial.print(in, 2);
-    Serial.print(", \"out\": ");
+    Serial.print(", \"turbidity_out\": ");
     Serial.print(out, 2);
-    Serial.print("}, \"system\": {\"status\": \"operating\", \"pump\": ");
+    Serial.print(", \"status\": \"");
+    Serial.print(systemStatus);
+    Serial.print("\", \"pump\": ");
     Serial.print(pumpState);
-    Serial.println("}}");
+    Serial.println("}");
 }

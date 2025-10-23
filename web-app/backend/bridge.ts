@@ -30,7 +30,7 @@ if (!fs.existsSync(logfile)) {
 }
 
 // init serial - shud match Arduino side
-const serial = new SerialPort({ path: "COM3", baudRate: 9600 });
+const serial = new SerialPort({ path: "COM5", baudRate: 9600 });
 const parser = serial.pipe(new ReadlineParser({ delimiter: "\n" }));
 
 function processData(raw: { system: { status: string; }; turbidity_in: any; turbidity_out: any; pump_state: any; }) {
@@ -65,6 +65,19 @@ parser.on("data", (line) => {
   } catch (err) {
     console.error("malformed JSON:", line);
   }
+});
+
+// root endpoint
+app.get("/", (req: Request, res: Response) => {
+  res.json({
+    message: "WPTPDI Backend Bridge Server",
+    status: "running",
+    endpoints: {
+      "/": "Server info",
+      "/export-csv": "download data log CSV"
+    },
+    websocket: "Socket.IO on same port for live data"
+  });
 });
 
 // endpoint for CSV export (call in a handler)

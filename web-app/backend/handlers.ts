@@ -1,7 +1,8 @@
 // handlers for extracting fields from JSON payload 
 // sys status, turbidity data 
 import { useState, useEffect } from "react";
-import { Socket  } from "socket.io";
+import io from "socket.io-client";
+import type { Socket } from "socket.io-client";
 
 
 export interface Payload {
@@ -16,7 +17,7 @@ export function useSystemData(): Payload {
   });
 
   useEffect(() => {
-    const socket: Socket = io("http://localhost:4000");
+    const socket = io("http://localhost:4000");
 
     socket.on("sensorData", (payload: Payload) => {
       setData(payload);
@@ -52,10 +53,6 @@ export function getReductionEfficiency(payload: Payload): number {
 
 export function normalizeStatus(status: string): string {
   const normalized = status.toLowerCase();
-  const validStatuses = ["offline", "operating", "treated", "online"];
+  const validStatuses = ["offline", "treating", "treated", "clean", "alert"];
   return validStatuses.includes(normalized) ? normalized : "offline";
-}
-
-function io(arg0: string): Socket<import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, any> {
-    throw new Error("Function not implemented.");
 }

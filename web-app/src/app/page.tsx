@@ -37,6 +37,11 @@ export default function Home() {
   const turbidityAfter = getTurbidityOut(payload);
   const reduction = getReductionEfficiency(payload);
 
+  // console.log("PAYLOAD: ", systemStatus, turbidityBefore, turbidityAfter, reduction)
+  console.log("DEBUG - Raw payload:", payload);
+  console.log("DEBUG - System status:", systemStatus);
+
+
   const carouselItems = [
     { title: "Inlet Turbidity Gauge", component: <TurbidityGauge label="inlet" value={turbidityBefore} /> },
     { title: "Outlet Turbidity Gauge", component: <TurbidityGauge label ="outlet" value={turbidityAfter} /> },
