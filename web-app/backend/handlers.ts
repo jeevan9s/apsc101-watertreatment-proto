@@ -40,7 +40,7 @@ export function getTurbidityIn(payload: Payload): number {
 }
 
 export function getTurbidityOut(payload: Payload): number {
-    return payload.turbidity?.out ?? 0
+    return payload.turbidity.in ?? 0;
 }
 
 export function getReductionEfficiency(payload: Payload): number {
