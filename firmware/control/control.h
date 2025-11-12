@@ -8,7 +8,6 @@ void initControls();
 bool startPressed();
 bool emergencyPressed();
 
-String getSystemState();
 String getSystemStatus();
 
 #endif

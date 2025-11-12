@@ -18,6 +18,9 @@ const int servoMotor = 0;
 const int horizSubPump = 0;
 const int perisPump = 0;
 
+extern bool systemRunning;
+
+#define TREATED_THRESHOLD // can implement after testing
 
 #endif 
 

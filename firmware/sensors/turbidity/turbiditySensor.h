@@ -4,9 +4,8 @@
 #include <Arduino.h>
 #include "config.h"
 
-
-float readTurbidityVoltage(int turbiditySens);
-float voltageToNTU(float voltage);
 void initTurbidity();
+float readTurbidityVoltage(int turbiditySens);
+float voltageToNTU(float v);
 
 #endif
