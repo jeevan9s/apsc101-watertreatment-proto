@@ -26,21 +26,32 @@ if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
 
 const logfile = path.join(logDir, "data_log.csv");
 if (!fs.existsSync(logfile)) {
-  fs.writeFileSync(logfile, "timestamp,turbidity_in,turbidity_out,status\n");
+  fs.writeFileSync(logfile, "timestamp,turbidity_in,turbidity_out,level,system_status\n");
 }
 
 // init serial - shud match Arduino side
 const serial = new SerialPort({ path: "COM5", baudRate: 9600 });
 const parser = serial.pipe(new ReadlineParser({ delimiter: "\n" }));
 
-function processData(raw: { system: { status: string; }; turbidity_in: any; turbidity_out: any; pump_state: any; }) {
-  const status = raw.system?.status?.toLowerCase() ? "operating" : "offline";
- 
+function processData(payload: {
+  turbidity_in: number;
+  turbidity_out: number;
+  liquidDetected: boolean;
+  status: string;
+  ts: number;
+}) {
   return {
-    turbidity: { in: raw.turbidity_in ?? 0, out: raw.turbidity_out ?? 0 },
-    system: { pump: raw.pump_state ?? 0, status },
+    turbidity: {
+      in: payload.turbidity_in ?? 0,
+      out: payload.turbidity_out ?? 0
+    },
+    liquidDetected: payload.liquidDetected ?? false,
+    status: payload.status ?? "offline",
+    timestamp: payload.ts ?? Date.now()
   };
 }
+
+
 
 /* 
 process json payload in the form:
@@ -56,18 +67,19 @@ parser.on("data", (line) => {
     const raw = JSON.parse(line);
     const filtered = processData(raw);
 
+    // broadcast to frontend
     io.emit("sensorData", filtered);
 
     // CSV loggin
-    const row = `${Date.now()},${filtered.turbidity.in},${filtered.turbidity.out},${filtered.system.pump},${filtered.system.status}\n`;
+    const row = `${(filtered.timestamp/1000).toFixed(2)},${filtered.turbidity.in},${filtered.turbidity.out},${filtered.liquidDetected},${filtered.status}\n`;
     fs.appendFileSync(logfile, row);
 
   } catch (err) {
-    console.error("malformed JSON:", line);
+    console.error(`[${new Date().toISOString()}] Malformed JSON:`, line);
   }
 });
 
-// root endpoint
+
 app.get("/", (req: Request, res: Response) => {
   res.json({
     message: "WPTPDI Backend Bridge Server",
@@ -89,7 +101,6 @@ app.get("/export-csv", (req: Request, res: Response) => {
   }
 });
 
-// start
 server.listen(4000, () => {
   console.log("backend running on http://localhost:4000");
 });

@@ -2,11 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SystemStatusCard } from "./SystemStatusCard";
 import { LogDataCard } from "./LogDataCard";
 
-export function StatusCards({ systemStatus, turbidityBefore, turbidityAfter, reduction }: {
+export function StatusCards({ systemStatus, turbidityBefore, turbidityAfter, reduction, liquidDetected }: {
   systemStatus: string;
   turbidityBefore: number;
   turbidityAfter: number;
   reduction: number;
+  liquidDetected: boolean;
 }) {
   return (
     <div className="flex flex-col gap-4 md:w-1/2">
@@ -34,6 +35,18 @@ export function StatusCards({ systemStatus, turbidityBefore, turbidityAfter, red
           <CardTitle className="text-xs text-white/70">Reduction Efficiency</CardTitle>
         </CardHeader>
         <CardContent className="text-xl font-semibold text-white py-2">{reduction.toFixed(1)} %</CardContent>
+      </Card>
+
+      <Card className="bg-neutral-900 border  border-neutral-800 rounded-2xl transform transition-transform duration-200 ease-in-out hover:scale-105">
+        <CardHeader>
+          <CardTitle className="text-xs text-white/70">Liquid Level Status</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center gap-2 py-1">
+          <div className={`w-3 h-3 rounded-full ${liquidDetected ? 'bg-green-700' : 'bg-red-700'}`} />
+          <span className="text-base font-semibold text-white">
+            {liquidDetected ? 'Detected' : 'Not Detected'}
+          </span>
+        </CardContent>
       </Card>
     </div>
   );
