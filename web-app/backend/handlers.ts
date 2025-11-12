@@ -6,7 +6,6 @@ import type { Socket } from "socket.io-client";
 
 export interface Payload {
   turbidity: { in: number; out: number };
-  liquidDetected: boolean;
   status: string;
   timestamp: number;
 }
@@ -14,7 +13,6 @@ export interface Payload {
 export function useSystemData(): Payload {
   const [data, setData] = useState<Payload>({
     turbidity: { in: 0, out: 0 },
-    liquidDetected: false,
     status: "offline",
     timestamp: 0,
   });
@@ -51,10 +49,6 @@ export function getReductionEfficiency(payload: Payload): number {
   const tOut = getTurbidityOut(payload);
   if (tIn <= 0) return 0;
   return (1 - tOut / tIn) * 100;
-}
-
-export function getLiquidDetectionStatus(payload: Payload): boolean {
-  return payload.liquidDetected ?? false;
 }
 
 export function getTimestamp(payload: Payload): number {

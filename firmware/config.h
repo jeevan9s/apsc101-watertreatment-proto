@@ -6,7 +6,6 @@
 // pinout (0 is a placeholder until we wire)
 const int turbidityOutSens = 0; 
 const int turbidityInSens = 0;
-const int levelSens = 0;
 
 const int startBtn = 0;
 const int emergStopBtn = 0;

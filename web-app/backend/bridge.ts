@@ -26,7 +26,7 @@ if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
 
 const logfile = path.join(logDir, "data_log.csv");
 if (!fs.existsSync(logfile)) {
-  fs.writeFileSync(logfile, "timestamp,turbidity_in,turbidity_out,level,system_status\n");
+  fs.writeFileSync(logfile, "timestamp,turbidity_in,turbidity_out,system_status\n");
 }
 
 // init serial - shud match Arduino side
@@ -36,7 +36,6 @@ const parser = serial.pipe(new ReadlineParser({ delimiter: "\n" }));
 function processData(payload: {
   turbidity_in: number;
   turbidity_out: number;
-  liquidDetected: boolean;
   status: string;
   ts: number;
 }) {
@@ -45,7 +44,6 @@ function processData(payload: {
       in: payload.turbidity_in ?? 0,
       out: payload.turbidity_out ?? 0
     },
-    liquidDetected: payload.liquidDetected ?? false,
     status: payload.status ?? "offline",
     timestamp: payload.ts ?? Date.now()
   };
@@ -71,7 +69,7 @@ parser.on("data", (line) => {
     io.emit("sensorData", filtered);
 
     // CSV loggin
-    const row = `${(filtered.timestamp/1000).toFixed(2)},${filtered.turbidity.in},${filtered.turbidity.out},${filtered.liquidDetected},${filtered.status}\n`;
+    const row = `${(filtered.timestamp/1000).toFixed(2)},${filtered.turbidity.in},${filtered.turbidity.out}${filtered.status}\n`;
     fs.appendFileSync(logfile, row);
 
   } catch (err) {

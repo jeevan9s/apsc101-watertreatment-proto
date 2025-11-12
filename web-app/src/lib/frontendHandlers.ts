@@ -3,13 +3,13 @@ import io from "socket.io-client";
 
 export interface Payload {
   turbidity: { in: number; out: number };
-  system: { status: string; pump: number; liquid: boolean };
+  system: { status: string;  };
 }
 
 export function useSystemData() {
   const [data, setData] = useState<Payload>({
     turbidity: { in: 0, out: 0 },
-    system: { status: "offline", pump: 0, liquid: false },
+    system: { status: "offline"},
   });
 
   useEffect(() => {
@@ -40,14 +40,6 @@ export function getTurbidityIn(payload: Payload): number {
 
 export function getTurbidityOut(payload: Payload): number {
   return payload.turbidity?.out ?? 0;
-}
-
-export function getPumpState(payload: Payload): number {
-  return payload.system?.pump ?? 0;
-}
-
-export function getLiquidDetectionStatus(payload: Payload): boolean {
-  return payload.system?.liquid ?? false;
 }
 
 export function getReductionEfficiency(payload: Payload): number {
