@@ -13,6 +13,9 @@ extern bool motor1State;
 extern bool motor2State;
 extern bool systemRunning;
 
+#define HORIZ_PUMP_SPEED;
+#define PERIS_PUMP_SPEED;
+
 #define SERVO_LOCK_ANGLE 0;
 
 enum MotorType {
@@ -22,10 +25,10 @@ enum MotorType {
 
 void initActuators();
 
-void perisPumpOn();
+void perisPumpOn(int speed);
 void perisPumpOff();
 
-void horizSubPumpOn();
+void horizSubPumpOn(int speed);
 void horizSubPumpOff();
 
 void servoDispense(int angle, unsigned long delayMs);

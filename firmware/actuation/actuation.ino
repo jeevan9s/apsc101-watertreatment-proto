@@ -29,9 +29,9 @@ void initActuators()
     alumServo.write(SERVO_LOCK_ANGLE);
 }
 
-void perisPumpOn()
+void perisPumpOn(int speed = PERIS_PUMP_PORT)
 {
-    perisPump.setSpeed(PERIS_PUMP_SPEED);
+    perisPump.setSpeed(speed);
     perisPump.run(FORWARD);
     perisPumpState = true;
 }
@@ -42,9 +42,9 @@ void perisPumpOff()
     perisPumpState = false;
 }
 
-void horizSubPumpOn()
+void horizSubPumpOn(int speed = HORIZ_PUMP_SPEED)
 {
-    horizSubPump.setSpeed(HORIZ_PUMP_SPEED);
+    horizSubPump.setSpeed(speed);
     horizSubPump.run(FORWARD);
     horizSubPumpState = true;
 }
