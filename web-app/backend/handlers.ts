@@ -7,12 +7,14 @@ import type { Socket } from "socket.io-client";
 export interface Payload {
   turbidity: { in: number; out: number };
   status: string;
+  phase: string;
   timestamp: number;
 }
 
 export function useSystemData(): Payload {
   const [data, setData] = useState<Payload>({
     turbidity: { in: 0, out: 0 },
+    phase: "idle",
     status: "offline",
     timestamp: 0,
   });
@@ -34,6 +36,10 @@ export function useSystemData(): Payload {
 
 export function getSystemStatus(payload: Payload): string {
   return payload.status ?? "offline";
+}
+
+export function getCurrentPhase(payload: Payload): string {
+  return payload.phase ?? "idle";
 }
 
 export function getTurbidityIn(payload: Payload): number {

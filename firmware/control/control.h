@@ -5,27 +5,27 @@
 #include "config.h"
 #include "actuation/actuation.h"
 
-bool systemRunning = false;
-static int lastStartReading = HIGH;
-static int lastEmergReading = HIGH;
-static long lastStartDebounce = 0;
-static long lastEmergDebounce = 0;
+extern bool systemRunning;
+extern int lastStartReading;
+extern int lastEmergReading;
+extern long lastStartDebounce;
+extern long lastEmergDebounce;
+
 
 void initControls();
 bool startPressed();
 bool emergencyPressed();
 
-String getSystemStatus();
+String getSystemStatus(float turbidityOut);
 
 enum systemPhase {
-    PHASE_IDLE;
-    PHASE_UNTREATED;
-    PHASE_DISPENSING;
-    PHASE_PRESSING;
-    PHASE_MIXING_SLOW;
-    PHASE_MIXING_FAST;
-    PHASE_TREATED;
-}
+    PHASE_IDLE,
+    PHASE_DISPENSING,
+    PHASE_PRESSING,
+    PHASE_MIXING_SLOW,
+    PHASE_MIXING_FAST,
+    PHASE_TREATED,
+};
 
 systemPhase getCurrentPhase(float turbidityOut);
 String phaseToString(systemPhase phase);

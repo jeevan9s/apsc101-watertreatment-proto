@@ -8,7 +8,7 @@ void initTurbidity() {
 
 float readTurbidityVoltage(int turbidityPin) {
   int raw = analogRead(turbidityPin);
-  float voltage = raw * (5.0f / 1024.0f);
+  float voltage = raw * (5.0f / 1023.0f);
   return voltage;
 }
 

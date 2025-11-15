@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SystemStatusCard } from "./SystemStatusCard";
+import { SystemPhaseCard, SystemStatusAndPhase, SystemStatusCard } from "./SystemStatusCard";
 import { LogDataCard } from "./LogDataCard";
 
 export function StatusCards({ systemStatus, turbidityBefore, turbidityAfter, reduction }: {
@@ -11,9 +11,9 @@ export function StatusCards({ systemStatus, turbidityBefore, turbidityAfter, red
   return (
     <div className="flex flex-col gap-4 md:w-1/2">
       <div className="flex gap-4">
-        <SystemStatusCard systemStatus={systemStatus} />
+        <SystemStatusAndPhase />
         <LogDataCard />
-      </div>
+      </div> 
 
       <Card className="bg-neutral-900 border border-neutral-800 rounded-2xl transform transition-transform duration-200 ease-in-out hover:scale-105">
         <CardHeader>

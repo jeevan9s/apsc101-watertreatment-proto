@@ -26,7 +26,7 @@ if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
 
 const logfile = path.join(logDir, "data_log.csv");
 if (!fs.existsSync(logfile)) {
-  fs.writeFileSync(logfile, "timestamp,turbidity_in,turbidity_out,system_status\n");
+  fs.writeFileSync(logfile, "timestamp,phase,turbidity_in,turbidity_out,system_status\n");
 }
 
 // init serial - shud match Arduino side
@@ -37,6 +37,7 @@ function processData(payload: {
   turbidity_in: number;
   turbidity_out: number;
   status: string;
+  phase: string;
   ts: number;
 }) {
   return {
@@ -45,6 +46,7 @@ function processData(payload: {
       out: payload.turbidity_out ?? 0
     },
     status: payload.status ?? "offline",
+    phase: payload.phase ?? "idle",
     timestamp: payload.ts ?? Date.now()
   };
 }
@@ -62,15 +64,25 @@ process json payload in the form:
 // parse serial data
 parser.on("data", (line) => {
   try {
-    const raw = JSON.parse(line);
+    const rawLine = line.trim();
+    const raw = JSON.parse(rawLine);
     const filtered = processData(raw);
 
     // broadcast to frontend
     io.emit("sensorData", filtered);
 
     // CSV loggin
-    const row = `${(filtered.timestamp/1000).toFixed(2)},${filtered.turbidity.in},${filtered.turbidity.out}${filtered.status}\n`;
-    fs.appendFileSync(logfile, row);
+    const row = [
+      filtered.timestamp,       // unix ms
+      filtered.phase,
+      filtered.turbidity.in,
+      filtered.turbidity.out,
+      filtered.status
+].map(String).join(",") + "\n";
+    fs.appendFile(logfile, row, (err) => {
+       if (err) console.error("CSV write error:", err);
+});
+
 
   } catch (err) {
     console.error(`[${new Date().toISOString()}] Malformed JSON:`, line);

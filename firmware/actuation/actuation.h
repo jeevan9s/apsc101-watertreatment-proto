@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <AFMotor.h>
 #include "config.h"
+#include "control/control.h"
 
 extern bool horizSubPumpState;
 extern bool perisDispensePumpState;

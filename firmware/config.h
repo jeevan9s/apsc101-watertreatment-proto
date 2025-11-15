@@ -15,7 +15,7 @@ const int pressMotorPin = 0;
 
 const int horizSubPumpPin = 0;
 const int cfPumpPin = 0;
-const int perisDispensePumpPin = 0;
+const int perisDispensePumpPin = 0; // relay
 
 
 #define TREATED_THRESHOLD 500 // can implement after testing

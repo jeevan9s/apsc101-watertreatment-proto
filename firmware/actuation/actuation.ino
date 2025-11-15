@@ -114,4 +114,5 @@ void emergencyShutdown()
     stopActuators(MOTOR_MIX_SLOW);
     stopActuators(MOTOR_PRESS);
     stopActuators(PUMP_PERIS);
+    systemRunning = false;
 }
