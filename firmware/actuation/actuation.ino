@@ -1,115 +1,117 @@
 #include "actuation.h"
 #include "control.h"
 
-AF_DCMotor motor1(MOTOR1_PORT);
-AF_DCMotor motor2(MOTOR2_PORT);
-AF_DCMotor perisPump(PERIS_PUMP_PORT);
-AF_DCMotor horizSubPump(HORIZ_PUMP_PORT);
+AF_DCMotor pressMotor(pressMotorPin);
+AF_DCMotor mixingMotor(mixingMotorPin);
+AF_DCMotor perisDispensePump(perisDispensePumpPin);
+AF_DCMotor horizSubPump(horizSubPumpPin);
+AF_DCMotor cfPump(cfPumpPin);
 
-Servo alumServo;
-
-bool perisPumpState = false;
+bool perisDispensePumpState = false;
 bool horizSubPumpState = false;
-bool servoDispensing = false;
-bool motor1State = false;
-bool motor2State = false;
-bool systemRunning = false;
+bool cfPumpState = false;
+bool pressMotorState = false;
+bool slowMixingMotorState = false;
+bool fastMixingMotorState = false;
 
 void initActuators()
 {
-    motor1.setSpeed(0);
-    motor2.setSpeed(0);
-    perisPump.setSpeed(0);
+    pressMotor.setSpeed(0);
+    mixingMotor.setSpeed(0);
+    perisDispensePump.setSpeed(0);
     horizSubPump.setSpeed(0);
-    motor1.run(RELEASE);
-    motor2.run(RELEASE);
-    perisPump.run(RELEASE);
+    cfPump.setSpeed(0);
+
+    pressMotor.run(RELEASE);
+    mixingMotor.run(RELEASE);
+    perisDispensePump.run(RELEASE);
     horizSubPump.run(RELEASE);
-    alumServo.attach(SERVO_PIN);
-    alumServo.write(SERVO_LOCK_ANGLE);
+    cfPump.run(RELEASE);
 }
 
-void perisPumpOn(int speed = PERIS_PUMP_PORT)
+void runActuators(ActuatorType actuator)
 {
-    perisPump.setSpeed(speed);
-    perisPump.run(FORWARD);
-    perisPumpState = true;
-}
-
-void perisPumpOff()
-{
-    perisPump.run(RELEASE);
-    perisPumpState = false;
-}
-
-void horizSubPumpOn(int speed = HORIZ_PUMP_SPEED)
-{
-    horizSubPump.setSpeed(speed);
-    horizSubPump.run(FORWARD);
-    horizSubPumpState = true;
-}
-
-void horizSubPumpOff()
-{
-    horizSubPump.run(RELEASE);
-    horizSubPumpState = false;
-}
-
-void motorRun(MotorType motor, int speed)
-{
-    switch (motor)
+    switch (actuator)
     {
-    case MOTOR_1:
-        motor1.setSpeed(speed);
-        motor1.run(FORWARD);
-        motor1State = true;
-        break;
-    case MOTOR_2:
-        motor2.setSpeed(speed);
-        motor2.run(FORWARD);
-        motor2State = true;
-        break;
+        case MOTOR_PRESS:
+            pressMotor.setSpeed(PRESS_MOTOR_SPEED);
+            pressMotor.run(FORWARD);
+            pressMotorState = true;
+            break;
+
+        case MOTOR_MIX_SLOW:
+            mixingMotor.setSpeed(SLOW_MIX_MOTOR_SPEED);
+            mixingMotor.run(FORWARD);
+            slowMixingMotorState = true;
+            fastMixingMotorState = false;
+            break;
+
+        case MOTOR_MIX_FAST:
+            mixingMotor.setSpeed(FAST_MIX_MOTOR_SPEED);
+            mixingMotor.run(FORWARD);
+            fastMixingMotorState = true;
+            slowMixingMotorState = false;
+            break;
+
+        case PUMP_PERIS:
+            perisDispensePump.setSpeed(PERIS_DISPENSE_PUMP_SPEED);
+            perisDispensePump.run(FORWARD);
+            perisDispensePumpState = true;
+            break;
+
+        case PUMP_HORIZ:
+            horizSubPump.setSpeed(HORIZ_PUMP_SPEED);
+            horizSubPump.run(FORWARD);
+            horizSubPumpState = true;
+            break;
+
+        case PUMP_CF:
+            cfPump.setSpeed(CF_PUMP_SPEED);
+            cfPump.run(FORWARD);
+            cfPumpState = true;
+            break;
     }
 }
 
-void motorStop(MotorType motor)
+void stopActuators(ActuatorType actuator)
 {
-    switch (motor)
+    switch (actuator)
     {
-    case MOTOR_1:
-        motor1.run(RELEASE);
-        motor1State = false;
-        break;
-    case MOTOR_2:
-        motor2.run(RELEASE);
-        motor2State = false;
-        break;
-    }
-}
+        case MOTOR_PRESS:
+            pressMotor.run(RELEASE);
+            pressMotorState = false;
+            break;
 
-void servoDispense(int startAngle, int endAngle, unsigned long delayMs)
-{
-    for (int angle = startAngle; angle <= endAngle; angle++) {
-        alumServo.write(angle);
-        delay(delayMs);
-    }
-    servoDispensing = true;
-}
+        case MOTOR_MIX_SLOW:
+        case MOTOR_MIX_FAST:
+            mixingMotor.run(RELEASE);
+            slowMixingMotorState = false;
+            fastMixingMotorState = false;
+            break;
 
-void servoReset(int currAngle, unsigned long delayMs)
-{startAngle
-    for (int angle = currAngle; angle >= SERVO_LOCK_ANGLE; angle--) {
-        alumServo.write(angle);
-        delay(delayMs);
+        case PUMP_PERIS:
+            perisDispensePump.run(RELEASE);
+            perisDispensePumpState = false;
+            break;
+
+        case PUMP_HORIZ:
+            horizSubPump.run(RELEASE);
+            horizSubPumpState = false;
+            break;
+
+        case PUMP_CF:
+            cfPump.run(RELEASE);
+            cfPumpState = false;
+            break;
     }
-    servoDispensing = false;
 }
 
 void emergencyShutdown()
 {
-    perisPumpOff();
-    horizSubPumpOff();
-    motorStop(MOTOR_1);
-    motorStop(MOTOR_2);
-    servoReset(SERVO_LOCK_ANGLE, 0);
+    stopActuators(PUMP_CF);
+    stopActuators(PUMP_HORIZ);
+    stopActuators(MOTOR_MIX_FAST);
+    stopActuators(MOTOR_MIX_SLOW);
+    stopActuators(MOTOR_PRESS);
+    stopActuators(PUMP_PERIS);
 }

@@ -2,14 +2,14 @@
 #define COMM_H
 
 #include <Arduino.h>
+#include "control/control.h"
 
 #define BAUD_RATE 9600
 #define MAX_PAYLOAD_LEN 128
 
-#define PAYLOAD_FORMAT "{\"turbidity_in\":%.2f,\"turbidity_out\":%.2f,\"level\":%s,\"status\":\"%s\",\"ts\":%lu}"
+#define PAYLOAD_FORMAT "{\"turbidity_in\":%.2f,\"turbidity_out\":%.2f,\"status\":\"%s\",\"phase\":\"%s\",\"ts\":%lu}"
 
-void sendStatus(float turbidity_in, float turbidity_out, boolean level, String status, unsigned long timestamp);
-
+void sendStatus(float turbidity_in, float turbidity_out, String status, systemPhase phase, unsigned long timestamp);
 
 
 #endif 

@@ -9,7 +9,7 @@ import { poppins } from "../../fonts";
 import { TurbidityGauge } from "./components/TurbidityGauge";
 import { TrendGraph } from "./components/TrendGraph";
 import { EfficiencyChart } from "./components/EfficiencyChart";
-import { useSystemData, getSystemStatus, getTurbidityIn, getTurbidityOut, getReductionEfficiency, getLiquidDetectionStatus } from "../lib/frontendHandlers";
+import { useSystemData, getSystemStatus, getTurbidityIn, getTurbidityOut, getReductionEfficiency } from "../lib/frontendHandlers";
 
 
 export default function Home() {
@@ -36,7 +36,6 @@ export default function Home() {
   const turbidityBefore = getTurbidityIn(payload);
   const turbidityAfter = getTurbidityOut(payload);
   const reduction = getReductionEfficiency(payload);
-  const liquidDetectionStatus = getLiquidDetectionStatus(payload);
 
   // console.log("PAYLOAD: ", systemStatus, turbidityBefore, turbidityAfter, reduction)
   console.log("DEBUG - Raw payload:", payload);
@@ -68,7 +67,6 @@ export default function Home() {
           turbidityBefore={turbidityBefore}
           turbidityAfter={turbidityAfter}
           reduction={reduction}
-          liquidDetected={liquidDetectionStatus}
         />
 
         <Carousel

@@ -1,13 +1,5 @@
 // control firmware (system states, status, emerg/start buttons with flags)
-
 #include "control.h"
-
-bool systemRunning = false;
-
-static int lastStartReading = HIGH;
-static int lastEmergReading = HIGH;
-static long lastStartDebounce = 0;
-static long lastEmergDebounce = 0;
 
 void initControls() {
     pinMode(startBtn, INPUT_PULLUP);
@@ -43,6 +35,35 @@ bool systemRunningFlag() {
 String getSystemStatus(float turbidityOut) {
     if (!systemRunning) return "offline";
     if (turbidityOut <= TREATED_THRESHOLD) return "treated";
+    if (turbidity)
     return "treating";
 }
 
+systemPhase getCurrentPhase(float turbidityOut) {
+    if (perisDispensePumpState) return PHASE_DISPENSING;
+    if (fastMixingMotorState && !slowMixingMotorState) return PHASE_MIXING_FAST;
+    if (slowMixingMotorState && !fastMixingMotorState) return PHASE_MIXING_SLOW;
+    if (pressMotorState) return PHASE_PRESSING;
+    if (getSystemStatus(turbidityOut) == "treated") return PHASE_TREATED;
+    if (!systemRunning) return PHASE_IDLE;
+    return PHASE_IDLE;
+}
+
+String phaseToString(systemPhase phase) {
+    switch (phase) {
+        case PHASE_IDLE:
+                return "Idle"; 
+        case PHASE_DISPENSING:
+                return "Coagulant Dispensing";
+        case PHASE_MIXING_FAST:
+                return "Fast Mixing";
+        case PHASE_MIXING_SLOW:
+                return "Slow Mixing";
+        case PHASE_PRESSING:
+                return "Filter Pressing";
+        case PHASE_TREATED:
+                return "Treated";
+        default:
+            return "Idle";
+    }
+}

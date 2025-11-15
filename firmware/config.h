@@ -10,16 +10,15 @@ const int turbidityInSens = 0;
 const int startBtn = 0;
 const int emergStopBtn = 0;
 
-const int motor1 = 0;
-const int motor2 = 0;
-const int servoMotor = 0;
+const int mixingMotorPin = 0;
+const int pressMotorPin = 0;
 
-const int horizSubPump = 0;
-const int perisPump = 0;
+const int horizSubPumpPin = 0;
+const int cfPumpPin = 0;
+const int perisDispensePumpPin = 0;
 
-extern bool systemRunning;
 
-#define TREATED_THRESHOLD // can implement after testing
+#define TREATED_THRESHOLD 500 // can implement after testing
 
 #endif 
 
