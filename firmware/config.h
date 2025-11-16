@@ -20,5 +20,10 @@ const int perisDispensePumpPin = 0; // relay
 
 #define TREATED_THRESHOLD 500 // can implement after testing
 
+// timing constants
+#define DISPENSE_DURATION_MS 5000
+#define SLOW_MIXING_DURATION_MS 10000
+#define FAST_MIXING_DURATION_MS 10000
+
 #endif 
 

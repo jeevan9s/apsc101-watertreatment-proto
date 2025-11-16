@@ -1,74 +1,96 @@
-// control firmware (system states, status, emerg/start buttons with flags)
-#include "control.h"
+#include <Arduino.h>
+#include "turbidity/turbidity.h"
+#include "control/control.h"
+#include "comm/comm.h"
+#include "actuation/actuation.h"
+#include "config.h"
 
-bool systemRunning = false;
-static int lastStartReading = HIGH;
-static int lastEmergReading = HIGH;
-static long lastStartDebounce = 0;
-static long lastEmergDebounce = 0;
+PHASE_IDLE, PHASE_DISPENSING, PHASE_MIXING_FAST, PHASE_MIXING_SLOW, PHASE_PRESSING, PHASE_TREATED;
 
-void initControls() {
-    pinMode(startBtn, INPUT_PULLUP);
-    pinMode(emergStopBtn, INPUT_PULLUP);
-    systemRunning = false;
+PHASE_IDLE phase = PHASE_IDLE;
+unsigned long phaseStart = 0;
+
+void setup() {
+    initControls();
+    initTurbidity();
+    initActuators();
+    initCommunication();
+
+    float turbIn = voltageToNTU(readTurbidityVoltage(turbidityInSens));
+    float turbOut = voltageToNTU(readTurbidityVoltage(turbidityOutSens));
+
+    sendStatus(turbIn, turbOut, "offline", phaseToString(PHASE_IDLE), millis());
 }
 
-bool debouncedPressed(int pin, int &lastReading, long &lastDebounce) {
-    int reading = digitalRead(pin);
-    bool pressed = false;
-    if (reading != lastReading) lastDebounce = millis();
-    if ((millis() - lastDebounce) > DEBOUNCE_DELAY) {
-        if (reading == LOW && lastReading == HIGH) pressed = true;
+void loop() {
+    unsigned long now = millis();
+
+    float turbIn = voltageToNTU(readTurbidityVoltage(turbidityInSens));
+    float turbOut = voltageToNTU(readTurbidityVoltage(turbidityOutSens));
+
+    if (!systemRunningFlag()) {
+        emergencyShutdown();
+        phase = PHASE_IDLE;
+        sendStatus(turbIn, turbOut, "offline", phaseToString(PHASE_IDLE), now);
+        return;
     }
-    lastReading = reading;
-    return pressed;
-}
 
-bool startPressed() {
-    return debouncedPressed(startBtn, lastStartReading, lastStartDebounce);
-}
-
-bool emergencyPressed() {
-    return debouncedPressed(emergStopBtn, lastEmergReading, lastEmergDebounce);
-}
-
-bool systemRunningFlag() {
-    if (emergencyPressed()) systemRunning = false;
-    else if (startPressed() && !systemRunning) systemRunning = true;
-    return systemRunning;
-}
-
-String getSystemStatus(float turbidityOut) {
-    if (!systemRunning) return "offline";
-    if (turbidityOut <= TREATED_THRESHOLD) return "treated";
-    return "treating";
-}
-
-systemPhase getCurrentPhase(float turbidityOut) {
-    if (perisDispensePumpState) return PHASE_DISPENSING;
-    if (fastMixingMotorState && !slowMixingMotorState) return PHASE_MIXING_FAST;
-    if (slowMixingMotorState && !fastMixingMotorState) return PHASE_MIXING_SLOW;
-    if (pressMotorState) return PHASE_PRESSING;
-    if (getSystemStatus(turbidityOut) == "treated") return PHASE_TREATED;
-    if (!systemRunning) return PHASE_IDLE;
-    return PHASE_IDLE;
-}
-
-String phaseToString(systemPhase phase) {
     switch (phase) {
         case PHASE_IDLE:
-                return "idle"; 
+            if (systemRunningFlag()) {
+                phase = PHASE_DISPENSING;
+                phaseStart = now;
+                runActuators(PUMP_PERIS);
+                sendStatus(turbIn, turbOut, "treating", phaseToString(phase), now);
+            }
+            break;
+
         case PHASE_DISPENSING:
-                return "coagulant dispensing";
+            if (now - phaseStart >= DISPENSE_DURATION_MS) {
+                stopActuators(PUMP_PERIS);
+                phase = PHASE_MIXING_FAST;
+                phaseStart = now;
+                runActuators(MOTOR_MIX_FAST);
+                sendStatus(turbIn, turbOut, "treating", phaseToString(phase), now);
+            }
+            break;
+
         case PHASE_MIXING_FAST:
-                return "fast mixing";
+            if (now - phaseStart >= FAST_MIX_DURATION_MS) {
+                stopActuators(MOTOR_MIX_FAST);
+                phase = PHASE_MIXING_SLOW;
+                phaseStart = now;
+                runActuators(MOTOR_MIX_SLOW);
+                sendStatus(turbIn, turbOut, "treating", phaseToString(phase), now);
+            }
+            break;
+
         case PHASE_MIXING_SLOW:
-                return "slow mixing";
+            if (now - phaseStart >= SLOW_MIX_DURATION_MS) {
+                stopActuators(MOTOR_MIX_SLOW);
+                phase = PHASE_PRESSING;
+                phaseStart = now;
+                runActuators(MOTOR_PRESS);
+                sendStatus(turbIn, turbOut, "treating", phaseToString(phase), now);
+            }
+            break;
+
         case PHASE_PRESSING:
-                return "filter pressing";
+            if (now - phaseStart >= PRESS_DURATION_MS) {
+                stopActuators(MOTOR_PRESS);
+                phase = PHASE_TREATED;
+                runActuators(PUMP_HORIZ);
+                sendStatus(turbIn, turbOut, "treating", phaseToString(phase), now);
+            }
+            break;
+
         case PHASE_TREATED:
-                return "treated";
+            stopActuators(PUMP_HORIZ);
+            phase = PHASE_IDLE;
+            sendStatus(turbIn, turbOut, "treated", phaseToString(PHASE_TREATED), now);
+            break;
+
         default:
-            return "idle";
+            break;
     }
 }
