@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "./components/Header";
@@ -7,46 +7,22 @@ import { StatusCards } from "./components/StatusCards";
 import { Carousel } from "./components/Carousel";
 import { poppins } from "../../fonts";
 import { TurbidityGauge } from "./components/TurbidityGauge";
-import { TrendGraph } from "./components/TrendGraph";
 import { EfficiencyChart } from "./components/EfficiencyChart";
 import { useSystemData, getSystemStatus, getTurbidityIn, getTurbidityOut, getReductionEfficiency } from "../lib/frontendHandlers";
 
-
 export default function Home() {
   const payload = useSystemData();
-  const [trendData, setTrendData] = useState<{ name: string; value: number }[]>([]);
-  const [effData, setEffData] = useState<{ name: string; efficiency: number }[]>([]);
   const [carouselIndex, setCarouselIndex] = useState(0);
-
-  useEffect(() => {
-    setTrendData((prev) => [
-      ...prev.slice(-19),
-      { name: new Date().toLocaleTimeString(), value: payload.turbidity.in }
-    ]);
-    setEffData((prev) => [
-      ...prev.slice(-19),
-      {
-        name: new Date().toLocaleTimeString(),
-        efficiency: getReductionEfficiency(payload)
-      }
-    ]);
-  }, [payload]);
 
   const systemStatus = getSystemStatus(payload);
   const turbidityBefore = getTurbidityIn(payload);
   const turbidityAfter = getTurbidityOut(payload);
   const reduction = getReductionEfficiency(payload);
 
-  // console.log("PAYLOAD: ", systemStatus, turbidityBefore, turbidityAfter, reduction)
-  console.log("DEBUG - Raw payload:", payload);
-  console.log("DEBUG - System status:", systemStatus);
-
-
   const carouselItems = [
-    { title: "Inlet Turbidity Gauge", component: <TurbidityGauge label="inlet" value={turbidityBefore} /> },
-    { title: "Outlet Turbidity Gauge", component: <TurbidityGauge label ="outlet" value={turbidityAfter} /> },
-    { title: "Turbidity Trend Graph", component: <TrendGraph data={trendData} /> },
-    { title: "Efficiency Chart", component: <EfficiencyChart data={effData} /> },
+    { title: "Inlet Turbidity Gauge", component: <TurbidityGauge label="inlet" /> },
+    { title: "Outlet Turbidity Gauge", component: <TurbidityGauge label="outlet" useInputSensor={false} /> },
+    { title: "Efficiency Chart", component: <EfficiencyChart /> },
   ];
 
   const nextCarousel = () => setCarouselIndex((prev) => (prev + 1) % carouselItems.length);
@@ -68,13 +44,12 @@ export default function Home() {
           turbidityAfter={turbidityAfter}
           reduction={reduction}
         />
-
         <Carousel
-            carouselItems={carouselItems}
-            carouselIndex={carouselIndex}
-            nextCarousel={nextCarousel}
-            prevCarousel={prevCarousel}
-          />
+          carouselItems={carouselItems}
+          carouselIndex={carouselIndex}
+          nextCarousel={nextCarousel}
+          prevCarousel={prevCarousel}
+        />
       </motion.section>
     </main>
   );

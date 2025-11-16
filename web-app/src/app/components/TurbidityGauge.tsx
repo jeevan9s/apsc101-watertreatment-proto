@@ -1,12 +1,22 @@
-import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useState, useEffect } from "react";
+import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { useSystemData, getTurbidityIn, getTurbidityOut } from "@/lib/frontendHandlers";
 
 interface TurbidityGaugeProps {
   label: string;
-  value?: number; 
-  max?: number;   
+  max?: number;
+  useInputSensor?: boolean; // true = turbidity in, false = turbidity out
 }
 
-export function TurbidityGauge({ label, value = 0, max = 10 }: TurbidityGaugeProps) {
+export function TurbidityGauge({ label, max = 10, useInputSensor = true }: TurbidityGaugeProps) {
+  const payload = useSystemData();
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    const turb = useInputSensor ? getTurbidityIn(payload) : getTurbidityOut(payload);
+    setValue(turb);
+  }, [payload, useInputSensor]);
+
   const gaugeData = [
     { name: 'Value', value: Math.min(value, max) },
     { name: 'Remainder', value: Math.max(0, max - value) },
@@ -16,7 +26,7 @@ export function TurbidityGauge({ label, value = 0, max = 10 }: TurbidityGaugePro
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
       <span className="text-2xl font-bold text-slate-400 mb-8">{label} Turbidity</span>
-      <div className="w-full h-40 flex items-center justify-center">
+      <div className="w-full h-40 flex items-center justify-center relative">
         <ResponsiveContainer width="80%" height="100%">
           <PieChart>
             <Pie
@@ -35,7 +45,7 @@ export function TurbidityGauge({ label, value = 0, max = 10 }: TurbidityGaugePro
           </PieChart>
         </ResponsiveContainer>
         <span className="absolute text-2xl font-semibold text-slate-700 mt-2">
-          {value}
+          {value.toFixed(1)}
         </span>
       </div>
     </div>
