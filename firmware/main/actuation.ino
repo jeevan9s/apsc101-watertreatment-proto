@@ -3,7 +3,6 @@
 
 AF_DCMotor pressMotor(pressMotorPin);
 AF_DCMotor mixingMotor(mixingMotorPin);
-AF_DCMotor perisDispensePump(perisDispensePumpPin);
 AF_DCMotor horizSubPump(horizSubPumpPin);
 AF_DCMotor cfPump(cfPumpPin);
 
@@ -18,15 +17,14 @@ void initActuators()
 {
     pressMotor.setSpeed(0);
     mixingMotor.setSpeed(0);
-    perisDispensePump.setSpeed(0);
     horizSubPump.setSpeed(0);
     cfPump.setSpeed(0);
 
     pressMotor.run(RELEASE);
     mixingMotor.run(RELEASE);
-    perisDispensePump.run(RELEASE);
     horizSubPump.run(RELEASE);
     cfPump.run(RELEASE);
+    pinMode(perisDispensePumpPin, OUTPUT);
 }
 
 void runActuators(ActuatorType actuator)
@@ -54,8 +52,8 @@ void runActuators(ActuatorType actuator)
             break;
 
         case PUMP_PERIS:
-            perisDispensePump.setSpeed(PERIS_DISPENSE_PUMP_SPEED);
-            perisDispensePump.run(FORWARD);
+            digitalWrite(perisDispensePumpPin, HIGH);
+            delay(1000);
             perisDispensePumpState = true;
             break;
 
@@ -90,7 +88,7 @@ void stopActuators(ActuatorType actuator)
             break;
 
         case PUMP_PERIS:
-            perisDispensePump.run(RELEASE);
+            digitalWrite(perisDispensePumpPin, LOW);
             perisDispensePumpState = false;
             break;
 
@@ -108,6 +106,7 @@ void stopActuators(ActuatorType actuator)
 
 void emergencyShutdown()
 {
+    runLED(emergLED);
     stopActuators(PUMP_CF);
     stopActuators(PUMP_HORIZ);
     stopActuators(MOTOR_MIX_FAST);

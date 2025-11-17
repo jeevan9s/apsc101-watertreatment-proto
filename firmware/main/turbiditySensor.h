@@ -1,7 +1,5 @@
-#ifndef TURBIDITY_H
-#define TURBIDITY_H
-
-#include <Arduino.h>
+#ifndef TURBIDITYSENSOR_H
+#define TURBIDITYSENSOR_H
 #include "config.h"
 
 void initTurbidity();

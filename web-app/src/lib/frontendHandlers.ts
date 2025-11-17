@@ -56,7 +56,7 @@ export function getReductionEfficiency(payload: Payload): number {
 
 export function normalizeStatus(status: string): string {
   const normalized = status.toLowerCase();
-  const validStatuses = ["offline", "treating", "monitoring", "clean", "alert"];
+  const validStatuses = ["offline", "treating", "treated", "monitoring", "clean", "alert"];
   return validStatuses.includes(normalized) ? normalized : "offline";
 }
 

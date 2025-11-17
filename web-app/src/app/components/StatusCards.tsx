@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SystemPhaseCard, SystemStatusAndPhase, SystemStatusCard } from "./SystemStatusCard";
 import { LogDataCard } from "./LogDataCard";
+import { Payload } from "@/lib/frontendHandlers";
 
-export function StatusCards({ systemStatus, turbidityBefore, turbidityAfter, reduction }: {
-  systemStatus: string;
+export function StatusCards({ payload, turbidityBefore, turbidityAfter, reduction }: {
+  payload: Payload;
   turbidityBefore: number;
   turbidityAfter: number;
   reduction: number;
@@ -11,7 +12,7 @@ export function StatusCards({ systemStatus, turbidityBefore, turbidityAfter, red
   return (
     <div className="flex flex-col gap-4 md:w-1/2">
       <div className="flex gap-4">
-        <SystemStatusAndPhase />
+        <SystemStatusAndPhase payload={payload} />
         <LogDataCard />
       </div> 
 

@@ -13,6 +13,7 @@ float readTurbidityVoltage(int turbidityPin) {
 }
 
 // source: 2T equation from excel/putty data
-float voltageToNTU(float v){
-    return -1120.4f * v * v - 5742.3f * v - 4352.9f;
+float voltageToNTU(float v) {
+    return -1120.4f * v * v + 5742.3f * v - 4352.9f;
 }
+

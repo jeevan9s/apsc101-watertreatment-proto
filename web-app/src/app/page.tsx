@@ -39,7 +39,7 @@ export default function Home() {
         className="flex flex-col md:flex-row gap-6"
       >
         <StatusCards
-          systemStatus={systemStatus}
+          payload={payload}
           turbidityBefore={turbidityBefore}
           turbidityAfter={turbidityAfter}
           reduction={reduction}

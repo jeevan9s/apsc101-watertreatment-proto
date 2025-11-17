@@ -45,11 +45,14 @@ function processData(payload: {
       in: payload.turbidity_in ?? 0,
       out: payload.turbidity_out ?? 0
     },
-    status: payload.status ?? "offline",
-    phase: payload.phase ?? "idle",
+    system: {
+      status: payload.status ?? "offline",
+      phase: payload.phase ?? "idle",
+    },
     timestamp: payload.ts ?? Date.now()
   };
 }
+
 
 
 
@@ -74,10 +77,10 @@ parser.on("data", (line) => {
     // CSV loggin
     const row = [
       filtered.timestamp,       // unix ms
-      filtered.phase,
+      filtered.system.phase,
       filtered.turbidity.in,
       filtered.turbidity.out,
-      filtered.status
+      filtered.system.status
 ].map(String).join(",") + "\n";
     fs.appendFile(logfile, row, (err) => {
        if (err) console.error("CSV write error:", err);
