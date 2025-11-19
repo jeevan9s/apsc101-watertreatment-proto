@@ -14,5 +14,7 @@ void initCommunication();
 void initLEDS(); 
 void runLED(int led);
 void stopLED(int led);
+void blinkLED(int led);
+void blinkLEDSLOW(int led);
 
 #endif 

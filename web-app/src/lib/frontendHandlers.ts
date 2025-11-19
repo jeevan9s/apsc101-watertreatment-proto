@@ -56,12 +56,12 @@ export function getReductionEfficiency(payload: Payload): number {
 
 export function normalizeStatus(status: string): string {
   const normalized = status.toLowerCase();
-  const validStatuses = ["offline", "treating", "treated", "monitoring", "clean", "alert"];
+  const validStatuses = ["online", "offline", "treating", "treated", "emergency"];
   return validStatuses.includes(normalized) ? normalized : "offline";
 }
 
 export function normalizePhase(phase: string): string {
   const normalized = phase.toLowerCase();
-  const validPhases = ["idle", "coagulant dispensing", "fast mixing", "slow mixing", "filter pressing", "treated"];
+  const validPhases = ["idle", "coagulant dispensing", "fast mixing", "slow mixing", "filter pressing", "treated", "emergency"];
   return validPhases.includes(normalized) ? normalized : "idle";
 }

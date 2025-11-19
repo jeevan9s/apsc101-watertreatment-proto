@@ -22,14 +22,19 @@ String getSystemStatus(float turbidityOut);
 bool systemRunningFlag();
 
 enum systemPhase {
+    PHASE_DEFAULT,
+    PHASE_PRE_CF,
     PHASE_IDLE,
     PHASE_DISPENSING,
     PHASE_PRESSING,
     PHASE_MIXING_SLOW,
     PHASE_MIXING_FAST,
+    PHASE_POST_PRESS,
     PHASE_TREATED,
+    PHASE_EMERGENCY,
     DONE
 };
+
 
 systemPhase getCurrentPhase(float turbidityOut);
 String phaseToString(systemPhase phase);

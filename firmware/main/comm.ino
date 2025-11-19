@@ -26,7 +26,7 @@ void sendStatus(float turbidity_in, float turbidity_out, String status, systemPh
 
 
 void initLEDS() {
-    pinMode(operatingLED, OUTPUT);
+    pinMode(treatingLED, OUTPUT);
     pinMode(emergLED, OUTPUT);
     pinMode(treatedLED, OUTPUT);
 }
@@ -34,6 +34,23 @@ void initLEDS() {
 void runLED (int led) {
     digitalWrite(led, HIGH);
 }
+
+void blinkLED(int led) {
+  digitalWrite(led, HIGH);  
+  delay(100);               
+  digitalWrite(led, LOW);   
+  delay(100);               
+}
+
+void blinkLEDSLOW(int led) {
+    for (int i = 0; i < 3; i++) {
+        digitalWrite(led, HIGH);
+        delay(300);
+        digitalWrite(led, LOW);
+        delay(300);
+    }
+}
+
 
 void stopLED(int led) {
     digitalWrite(led, LOW);

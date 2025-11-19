@@ -3,19 +3,23 @@ import { normalizePhase, normalizeStatus, Payload, getCurrentPhase, getSystemSta
 
 const STATUS_STYLES: Record<string, { color: string; pulse: boolean }> = {
   online: { color: "text-green-200 bg-green-200", pulse: true },
-  treating: { color: "text-slate-400 bg-slate-400", pulse: true },
+  treating: { color: "text-slate-400 bg-slate-300", pulse: true },
   offline: { color: "text-neutral-400 bg-neutral-400", pulse: false },
-  treated: { color: "text-green-400 bg-green-400", pulse: false },
+  treated: { color: "text-green-200 bg-green-200", pulse: false },
+  emergency: {color: "text-red-500 bg-red-400", pulse: false},
 };
 
 const PHASE_STYLES: Record<string, { color: string; pulse: boolean }> = {
-  idle: { color: "text-orange-300 bg-orange-300", pulse: true },
-  "coagulant dispensing": { color: "text-cyan-700 bg-cyan-700", pulse: true },
-  "fast mixing": { color: "text-blue-500 bg-blue-500", pulse: true },
-  "slow mixing": { color: "text-purple-500 bg-purple-500", pulse: true },
-  "filter pressing": { color: "text-yellow-400 bg-yellow-400", pulse: true },
-  treated: { color: "text-green-400 bg-green-400", pulse: false },
-  offline: { color: "text-neutral-400 bg-neutral-400", pulse: false },
+   "idle": { color: "text-orange-300 bg-orange-300", pulse: true },
+  "coagulant dispensing": { color: "text-cyan-700 bg-cyan-600", pulse: true },
+  "fast mixing": { color: "text-blue-300 bg-blue-300", pulse: true },
+  "slow mixing": { color: "text-blue-300 bg-blue-300", pulse: true },
+  "filter pressing": { color: "text-blue-300 bg-blue-300", pulse: true },
+  "treated": { color: "text-green-200 bg-green-200", pulse: false },
+  "offline": { color: "text-neutral-400 bg-neutral-400", pulse: false },
+  "emergency": {color: "text-red-500 bg-red-400", pulse: false},
+  "contaminated water dispensing": {color: "text-amber-500 bg-amber-500", pulse:false},
+  "transporting treated water": {color: "text-cyan-200 bg-cyan-200", pulse:false}
 };
 
 export function SystemStatusCard({ payload }: { payload?: Payload }) {
@@ -28,7 +32,7 @@ export function SystemStatusCard({ payload }: { payload?: Payload }) {
         <CardTitle className="text-xs text-white/70">System Status</CardTitle>
       </CardHeader>
       <CardContent className="flex items-center justify-between py-2">
-        <span className={`text-sm font-medium ${statusStyle.color.split(" ")[0]}`}>
+        <span className={`text-sm font-bold ${statusStyle.color.split(" ")[0]}`}>
           {status}
         </span>
         <div
@@ -51,7 +55,7 @@ export function SystemPhaseCard({ payload }: { payload?: Payload }) {
         <CardTitle className="text-xs text-white/70">System Phase</CardTitle>
       </CardHeader>
       <CardContent className="flex items-center justify-between py-2">
-        <span className={`text-sm font-medium ${phaseStyle.color.split(" ")[0]}`}>
+        <span className={`text-sm font-bold ${phaseStyle.color.split(" ")[0]}`}>
           {phase}
         </span>
         <div

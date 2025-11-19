@@ -1,10 +1,10 @@
 #include "actuation.h"
 #include "control.h"
 
-AF_DCMotor pressMotor(pressMotorPin);
-AF_DCMotor mixingMotor(mixingMotorPin);
-AF_DCMotor horizSubPump(horizSubPumpPin);
-AF_DCMotor cfPump(cfPumpPin);
+AF_DCMotor pressMotor(2);  // Direct port number
+AF_DCMotor mixingMotor(1); // Direct port number  
+AF_DCMotor horizSubPump(4); // Direct port number
+AF_DCMotor cfPump(3);      // Direct port number
 
 bool perisDispensePumpState = false;
 bool horizSubPumpState = false;
@@ -53,7 +53,6 @@ void runActuators(ActuatorType actuator)
 
         case PUMP_PERIS:
             digitalWrite(perisDispensePumpPin, HIGH);
-            delay(1000);
             perisDispensePumpState = true;
             break;
 

@@ -4,162 +4,251 @@
 #include "actuation.h"
 #include "config.h"
 
-systemPhase phase = PHASE_IDLE;
+#include "turbiditySensor.h"
+#include "control.h"
+#include "comm.h"
+#include "actuation.h"
+#include "config.h"
+
+systemPhase phase = PHASE_DEFAULT;
 unsigned long phaseStart = 0;
 
 void setup() {
-    Serial.begin(BAUD_RATE);
-
     initControls();
     initTurbidity();
     initActuators();
     initCommunication();
     initLEDS();
 
+    phase = PHASE_DEFAULT;
+    phaseStart = 0;
+
     float initialTurbIn = voltageToNTU(readTurbidityVoltage(turbidityInSens));
     float initialTurbOut = voltageToNTU(readTurbidityVoltage(turbidityOutSens));
-    sendStatus(initialTurbIn, initialTurbOut, "initialized", PHASE_IDLE, millis());
+    sendStatus(initialTurbIn, initialTurbOut, "offline", PHASE_DEFAULT, millis());
 }
 
 void loop() {
-    // unsigned long now = millis();
+    unsigned long now = millis();
 
-    // if (!systemRunningFlag()) {
-    //     emergencyShutdown();
-        
-    //     phase = PHASE_IDLE;
+    static bool lastEmergencyState = false;
+    bool emergencyState = emergencyPressed();
 
-    //     sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
-    //                voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
-    //                "emergency stop",
-    //                PHASE_IDLE,
-    //                now);
-    //     return;
-    // }
+    if (emergencyState && !lastEmergencyState) {
+        stopLED(treatingLED);
+        stopLED(treatedLED);
+        emergencyShutdown();
+        phase = PHASE_EMERGENCY;
 
-    // switch (phase) {
+        sendStatus(
+            voltageToNTU(readTurbidityVoltage(turbidityInSens)),
+            voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
+            "emergency",
+            PHASE_EMERGENCY,
+            now
+        );
 
-    //     case PHASE_IDLE:
-    //         if (systemRunningFlag()) {
-    //             runLED(treatingLED);
-    //             phase = PHASE_DISPENSING;
-    //             phaseStart = now;
-    //             runActuators(PUMP_PERIS);
+        lastEmergencyState = emergencyState;
+    }
 
-    //             sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
-    //                        voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
-    //                        "coagulant dispensing",
-    //                        PHASE_DISPENSING,
-    //                        now);
-    //         }
-    //         break;
+    lastEmergencyState = emergencyState;
 
-    //     case PHASE_DISPENSING:
-    //         if (now - phaseStart >= DISPENSE_DURATION_MS) {
-    //             runLED(treatingLED);
-    //             stopActuators(PUMP_PERIS);
-    //             phase = PHASE_MIXING_FAST;
-    //             phaseStart = now;
-    //             runActuators(MOTOR_MIX_FAST);
+    switch (phase) {
 
-    //             sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
-    //                        voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
-    //                        "fast mixing",
-    //                        PHASE_MIXING_FAST,
-    //                        now);
-    //         }
-    //         break;
+        case PHASE_EMERGENCY:
+            blinkLED(emergLED);
+            if (startPressed()) {
+                stopLED(emergLED);
+                phase = PHASE_DEFAULT;
+                phaseStart = now;
+            }
+            break;
 
-    //     case PHASE_MIXING_FAST:
-    //         if (now - phaseStart >= FAST_MIX_DURATION_MS) {
-    //             runLED(treatingLED);
-    //             stopActuators(MOTOR_MIX_FAST);
-    //             phase = PHASE_MIXING_SLOW;
-    //             phaseStart = now;
-    //             runActuators(MOTOR_MIX_SLOW);
+        case PHASE_DEFAULT:
+            stopActuators(PUMP_PERIS);
+            stopActuators(MOTOR_MIX_FAST);
+            stopActuators(MOTOR_MIX_SLOW);
+            stopActuators(MOTOR_PRESS);
+            stopActuators(PUMP_HORIZ);
+            stopActuators(PUMP_CF);
 
-    //             sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
-    //                        voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
-    //                        "slow mixing",
-    //                        PHASE_MIXING_SLOW,
-    //                        now);
-    //         }
-    //         break;
+            stopLED(treatingLED);
+            stopLED(treatedLED);
+            stopLED(emergLED);
 
-    //     case PHASE_MIXING_SLOW:
-    //         if (now - phaseStart >= SLOW_MIX_DURATION_MS) {
-    //             runLED(treatingLED);
-    //             stopActuators(MOTOR_MIX_SLOW);
-    //             phase = PHASE_PRESSING;
-    //             phaseStart = now;
-    //             runActuators(MOTOR_PRESS);
+            if (startPressed()) {
+                phase = PHASE_IDLE;
+                phaseStart = now;
+                blinkLED(treatingLED);
+            }
+            break;
 
-    //             sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
-    //                        voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
-    //                        "filter pressing",
-    //                        PHASE_PRESSING,
-    //                        now);
-    //         }
-    //         break;
+        case PHASE_IDLE:
+            stopLED(treatingLED);
+            stopLED(treatedLED);
 
-    //     case PHASE_PRESSING:
-    //         if (now - phaseStart >= PRESS_DURATION_MS) {
-    //             runLED(treatingLED);
-    //             stopActuators(MOTOR_PRESS);
-    //             phase = PHASE_TREATED;
-    //             runActuators(PUMP_HORIZ);
+            phase = PHASE_PRE_CF;
+            phaseStart = now;
+            blinkLED(treatingLED);
 
-    //             sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
-    //                        voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
-    //                        "treated",
-    //                        PHASE_TREATED,
-    //                        now);
-    //         }
-    //         break;
+            runActuators(PUMP_CF);
 
-    //     case PHASE_TREATED:
-    //         runLED(treatedLED);
-    //         stopActuators(PUMP_HORIZ);
-    //         phase = DONE;
-
-    //         sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
-    //                    voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
-    //                    "treated",
-    //                    DONE,
-    //                    now);
-    //         break;
-
-    //     case DONE:
-    //     default:
-    //         break;
-    // }
-
-    sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
+            sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
                        voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
-                       "treated",
-                       PHASE_TREATED,
-                       millis());
-}
+                       "online",
+                       PHASE_PRE_CF,
+                       now);
+            break;
 
-const int LED_ARRAY[] = {operatingLED, emergLED, treatedLED};
-void test_PUMP() {
-    for (int i = 0; i < 3; i++ ) {
-        runLED(LED_ARRAY[i]);
-        sendStatus(6, 7, "treating", PHASE_DISPENSING, millis());
-        delay(2000);
-        stopLED(LED_ARRAY[i]);
+        case PHASE_PRE_CF:
+            runLED(treatingLED);
+
+            if (now - phaseStart >= CF_PUMP_DURATION_MS) {
+                stopActuators(PUMP_CF);
+                phase = PHASE_DISPENSING;
+                phaseStart = now;
+                blinkLED(treatingLED);
+
+                runActuators(PUMP_PERIS);
+
+                sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
+                           voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
+                           "treating",
+                           PHASE_DISPENSING,
+                           now);
+            }
+            break;
+
+        case PHASE_DISPENSING:
+            runLED(treatingLED);
+
+            if (now - phaseStart >= DISPENSE_DURATION_MS) {
+                stopActuators(PUMP_PERIS);
+                phase = PHASE_MIXING_SLOW;
+                phaseStart = now;
+                blinkLED(treatingLED);
+
+                runActuators(MOTOR_MIX_SLOW);
+
+                sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
+                           voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
+                           "treating",
+                           PHASE_MIXING_SLOW,
+                           now);
+            }
+            break;
+        
+        case PHASE_MIXING_SLOW:
+            runLED(treatingLED);
+
+            if (now - phaseStart >= SLOW_MIX_DURATION_MS) {
+                stopActuators(MOTOR_MIX_SLOW);
+                phase = PHASE_MIXING_FAST;
+                phaseStart = now;
+                blinkLED(treatingLED);
+
+                runActuators(MOTOR_MIX_FAST);
+
+                sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
+                           voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
+                           "treating",
+                           PHASE_MIXING_FAST,
+                           now);
+            }
+            break;
+
+        case PHASE_MIXING_FAST:
+            blinkLED(treatingLED);
+
+            if (now - phaseStart >= FAST_MIX_DURATION_MS) {
+                stopActuators(MOTOR_MIX_FAST);
+                phase = PHASE_PRESSING;
+                phaseStart = now;
+                blinkLED(treatingLED);
+
+                runActuators(MOTOR_PRESS);
+
+                sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
+                           voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
+                           "treating",
+                           PHASE_PRESSING,
+                           now);
+            }
+            break;
+
+        case PHASE_PRESSING:
+            runLED(treatingLED);
+
+            if (now - phaseStart >= PRESS_DURATION_MS) {
+                stopActuators(MOTOR_PRESS);
+                phase = PHASE_POST_PRESS;
+                phaseStart = now;
+                blinkLED(treatingLED);
+
+                runActuators(PUMP_HORIZ);
+
+                sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
+                           voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
+                           "treating",
+                           PHASE_POST_PRESS,
+                           now);
+            }
+            break;
+
+        case PHASE_POST_PRESS:
+            blinkLED(treatingLED);
+            runLED(treatedLED);
+
+            if (now - phaseStart >= HORIZ_PUMP_DURATION_MS) {
+                stopActuators(PUMP_HORIZ);
+                phase = PHASE_TREATED;
+                phaseStart = now;
+                blinkLED(treatingLED);
+
+                sendStatus(voltageToNTU(readTurbidityVoltage(turbidityInSens)),
+                           voltageToNTU(readTurbidityVoltage(turbidityOutSens)),
+                           "treated",
+                           PHASE_TREATED,
+                           now);
+            }
+            break;
+
+        case PHASE_TREATED: {
+            unsigned long elapsed = millis() - phaseStart;
+
+            if (elapsed < 3 * 600) {
+                if ((elapsed / 300) % 2 == 0) {
+                    digitalWrite(treatedLED, HIGH);
+                } else {
+                    digitalWrite(treatedLED, LOW);
+                }
+            } else {
+                digitalWrite(treatedLED, HIGH);
+            }
+            break;
+        }
+
+        default:
+            break;
     }
 }
 
-const ActuatorType PUMP_ARRAY[] = {PUMP_PERIS, PUMP_HORIZ, PUMP_CF};
-void test_PUMPS() {
-    for (int i = 0; i < 3; i++) {
-        runActuators(PUMP_ARRAY[i]);
-        sendStatus(6, 7, "treated", PHASE_MIXING_SLOW, millis());
-        delay(800);
-        stopActuators(PUMP_ARRAY[i]);
-    }
-}
+// const int LED_ARRAY[] = {treatingLED, emergLED, treatedLED};
+// void test_PUMP() {
+//     for (int i = 0; i < 3; i++ ) {
+//         runLED(LED_ARRAY[i]);
+//         sendStatus(6, 7, "treating", PHASE_DISPENSING, millis());
+//         delay(2000);
+//         stopLED(LED_ARRAY[i]);
+//     }
+// }
 
-
- 
+// const ActuatorType PUMP_ARRAY[] = {PUMP_PERIS, PUMP_HORIZ, PUMP_CF};
+// void test_PUMPS() {
+//     for (int i = 0; i < 3; i++) {
+//         runActuators(PUMP_ARRAY[i]);
+//         sendStatus(6, 7, "treated", PHASE_MIXING_SLOW, millis());
+//         delay(800);
+//         stopActuators(PUMP_ARRAY[i]);
+//     }
+// }

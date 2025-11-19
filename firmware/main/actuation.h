@@ -12,14 +12,14 @@ extern bool fastMixingMotorState;
 extern bool pressMotorState;
 extern bool cfPumpState;
 
-#define HORIZ_PUMP_SPEED 255 // change after testing
+#define HORIZ_PUMP_SPEED 200 // change after testing
 #define PERIS_DISPENSE_PUMP_SPEED 100 // change after testing (applies 2 all speed constants)
-#define CF_PUMP_SPEED 255
+#define CF_PUMP_SPEED 127
 
-#define SLOW_MIX_MOTOR_SPEED 75
-#define FAST_MIX_MOTOR_SPEED 85
+#define SLOW_MIX_MOTOR_SPEED 100
+#define FAST_MIX_MOTOR_SPEED 95
 
-#define PRESS_MOTOR_SPEED 100
+#define PRESS_MOTOR_SPEED 85
 
 typedef enum {
     MOTOR_PRESS,
