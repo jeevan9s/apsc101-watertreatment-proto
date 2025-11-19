@@ -34,7 +34,7 @@ if (!fs_1.default.existsSync(logfile)) {
 }
 
 // init serial - match Arduino
-const serial = new serialport_1.SerialPort({ path: "COM5", baudRate: 9600 });
+const serial = new serialport_1.SerialPort({ path: "COM5", baudRate: 115200 });
 const parser = serial.pipe(new serialport_1.ReadlineParser({ delimiter: "\n" }));
 
 serial.on('open', () => {

@@ -30,7 +30,7 @@ if (!fs.existsSync(logfile)) {
 }
 
 // init serial - shud match Arduino side
-const serial = new SerialPort({ path: "COM5", baudRate: 9600 });
+const serial = new SerialPort({ path: "COM5", baudRate: 115200 });
 const parser = serial.pipe(new ReadlineParser({ delimiter: "\n" }));
 
 function processData(payload: {

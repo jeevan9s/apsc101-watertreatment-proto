@@ -3,7 +3,7 @@
 
 #include "control.h"
 
-#define BAUD_RATE 9600
+#define BAUD_RATE 115200
 #define MAX_PAYLOAD_LEN 256
 
 #define PAYLOAD_FORMAT "{\"turbidity_in\":%.2f,\"turbidity_out\":%.2f,\"status\":\"%s\",\"phase\":\"%s\",\"ts\":%lu}"

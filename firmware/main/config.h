@@ -14,11 +14,11 @@ const int treatingLED = 51;
 const int emergLED = 50;
 const int treatedLED = 48;
 
-const int mixingMotorPin = 1;
-const int pressMotorPin = 2;
+const int mixingMotorPin = 2;
+const int pressMotorPin = 1;
 
-const int horizSubPumpPin = 4;
-const int cfPumpPin = 3;
+const int horizSubPumpPin = 3;
+const int cfPumpPin = 4;
 const int perisDispensePumpPin = 49; // relay
 
 

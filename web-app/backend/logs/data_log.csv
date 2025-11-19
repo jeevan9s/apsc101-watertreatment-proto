@@ -3056,3 +3056,20 @@ timestamp,turbidity_in,turbidity_out,status,phase
 66970,1394.12,1471.94,treating,contaminated water dispensing
 1,2477.83,2219.27,offline,default
 6761,1633.95,1522.76,online,contaminated water dispensing
+1,2492.74,2237.51,offline,default
+73163,1705.68,1572.71,online,contaminated water dispensing
+83163,1327.79,1407.22,treating,coagulant dispensing
+1,2507.44,2255.53,offline,default
+11280,1717.44,1597.37,online,contaminated water dispensing
+21280,1287.36,1367.75,treating,coagulant dispensing
+1,2630.11,2485.31,offline,default
+37035,2134.57,2025.16,online,contaminated water dispensing
+47035,1809.65,1876.55,treating,coagulant dispensing
+52035,1597.37,1681.98,treating,slow mixing
+62035,1729.15,1820.93,treating,fast mixing
+72035,1854.46,1941.53,treating,filter pressing
+77035,1729.15,1820.93,treating,transporting treated water
+87035,1693.85,1798.31,treated,treated
+1,2570.94,2375.66,offline,default
+27399,1854.46,1729.15,online,contaminated water dispensing
+37399,1471.94,1547.84,treating,coagulant dispensing

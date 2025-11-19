@@ -24,7 +24,6 @@ void sendStatus(float turbidity_in, float turbidity_out, String status, systemPh
     Serial.println("}");
 }
 
-
 void initLEDS() {
     pinMode(treatingLED, OUTPUT);
     pinMode(emergLED, OUTPUT);
@@ -36,22 +35,16 @@ void runLED (int led) {
 }
 
 void blinkLED(int led) {
-  digitalWrite(led, HIGH);  
-  delay(100);               
-  digitalWrite(led, LOW);   
-  delay(100);               
-}
-
-void blinkLEDSLOW(int led) {
-    for (int i = 0; i < 3; i++) {
-        digitalWrite(led, HIGH);
-        delay(300);
-        digitalWrite(led, LOW);
-        delay(300);
+    static unsigned long lastBlinkTime = 0;
+    static bool ledState = false;
+    
+    if (millis() - lastBlinkTime >= 200) {
+        ledState = !ledState;
+        digitalWrite(led, ledState ? HIGH : LOW);
+        lastBlinkTime = millis();
     }
 }
 
-
 void stopLED(int led) {
     digitalWrite(led, LOW);
-} 
+}
